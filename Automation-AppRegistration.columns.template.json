@@ -1,0 +1,79 @@
+[
+    {
+        "name":  "TimeGenerated",
+        "type":  "datetime",
+        "description":  "The time at which the data was generated",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "CredentialID",
+        "type":  "string",
+        "description":  "Credential Secret or Certificate ID",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "CredentialType",
+        "type":  "string",
+        "description":  "Type of a credential. Usually either a Secret or a Certificate",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "DisplayName",
+        "type":  "string",
+        "description":  "App Registration Name",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "ApplicationId",
+        "type":  "string",
+        "description":  "Application Id",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "ExpiryDate",
+        "type":  "datetime",
+        "description":  "Object expiration date",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "StartDate",
+        "type":  "datetime",
+        "description":  "Object creation date",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "LatestExpiryDate",
+        "type":  "datetime",
+        "description":  "Newest expiration date",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "Owners",
+        "type":  "string",
+        "description":  "List of App owners",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "Link",
+        "type":  "string",
+        "description":  "URL of App registration in EntraID",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    },
+    {
+        "name":  "BAP",
+        "type":  "string",
+        "description":  "Business Application ID to match in ServiceNOW",
+        "isDefaultDisplay":  true,
+        "isHidden":  false
+    }
+]
