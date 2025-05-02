@@ -1,0 +1,50 @@
+# =====================
+# Global (Multi-module)
+# =====================
+columns_template_path = "./config/columns.json"
+description           = "Nightly backup runbook"
+location              = "eastus"
+resource_group_name   = "prod-resources"
+tags = {
+  Environment = "Production"
+  Owner       = "DevOps"
+}
+
+# ======================
+# Azure Details
+# ======================
+azure_subscription_id   = "00000000-0000-0000-0000-000000000000"
+azure_subscription_name = "MySubscription"
+azure_tenant_id         = "00000000-0000-0000-0000-000000000000"
+
+# ======================
+# Module-specific Details
+# ======================
+
+# Automation Runbook
+automation_account_name = "prod-automation"
+hybrid_worker_group     = ""
+key_vault_name          = "prod-secrets"
+log_progress            = true
+log_verbose             = false
+runbook_name            = "BackupScript"
+runbook_type            = "PowerShell"
+script_file_path        = "./scripts/backup.ps1"
+secret_name_sp_app_id   = "spn-app-id"
+secret_name_sp_password = "spn-password"
+start_time_utc          = "03:00:00"
+
+# Data Collection Rule
+dcr_name        = "prod-dcr"
+dcr_stream_name = "BackupStream"
+destination_name= "LogAnalytics"
+
+# Log Analytics Table
+retention_days       = 30
+table_name           = "BackupLogs_CL"
+total_retention_days = 365
+workspace_name       = "prod-logs"
+
+# RBAC Role
+role_definition_name        = "Monitoring Metrics Publisher"
+service_principal_client_id = "11111111-1111-1111-1111-111111111111"
