@@ -341,7 +341,7 @@ Foreach ($AzureApp in $AllAzureApps) {
     if ($Secrets.Count -gt 0) {
         Write-AppRegistrations `
             -items             $Secrets `
-            -credentialtype    "Secret" `
+            -CrdntlType	       "Secret" `
             -azureapp          $AzureApp `
             -azureappowners    $AzureAppOwners `
             -currentdate       $CurrentDate `
