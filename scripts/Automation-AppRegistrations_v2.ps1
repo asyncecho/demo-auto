@@ -97,7 +97,6 @@ Function Write-AppRegistrations {
     # Get the item with the oldest ExpiryDate within the defined period
     $oldestItem = $Items | Where-Object { ($_.EndDateTime -ge $currentDate) -and ($_.EndDateTime -le $currentDate.AddDays($ExpiresIn)) }
 
-
     # Proceed only if an oldest item is found
     if ($oldestItem) {
         $LatestExpiryDate = $null
@@ -190,44 +189,6 @@ function Add-Credentials {
 }
 #>
 
-# Ensures you do not inherit an AzContext in your runbook
-Disable-AzContextAutosave -Scope Process  | Out-Null
-
-# Import required modules
-# Define required modules at the top
-$requiredModules = @(
-    "Az.Accounts",
-    "Az.KeyVault",
-    "Microsoft.Graph.Applications",
-    "Microsoft.Graph.Authentication"
-)
-
-# Install them in a loop
-$requiredModules | ForEach-Object {
-    Test-ModuleInstalled -modulename $_
-}
-
-<#
-# Replaced with Invoke-Safe function
-# Login to Azure using the Managed Identity of the Automation Account
-try {
-    "Logging in to Azure..."
-    Connect-AzAccount -Identity  -Subscription $subscription_name | Out-Null
-    # Connect-AzAccount -Identity
-    #Connect-AzAccount -Identity -Subscription $subscription_name | Out-Null
-}
-catch {
-    Write-Error -Message $_.Exception
-    throw $_.Exception
-}
-#>
-
-# Connect to Azure
-Invoke-Safe -scriptblock {
-    Connect-AzAccount -Identity -Subscription $subscription_name | Out-Null
-} -errormessage "Azure login failed"
-
-
 function Get-DCRBearerToken {
     [CmdletBinding()]
     param (
@@ -249,6 +210,28 @@ function Get-DCRBearerToken {
     return $tokenResponse.access_token
 }
 
+# Ensures you do not inherit an AzContext in your runbook
+Disable-AzContextAutosave -Scope Process  | Out-Null
+
+# Import required modules
+# Define required modules at the top
+$requiredModules = @(
+    "Az.Accounts",
+    "Az.KeyVault",
+    "Microsoft.Graph.Applications",
+    "Microsoft.Graph.Authentication"
+)
+
+# Install them in a loop
+$requiredModules | ForEach-Object {
+    Test-ModuleInstalled -modulename $_
+}
+
+# Connect to Azure
+Invoke-Safe -scriptblock {
+    Connect-AzAccount -Identity -Subscription $subscription_name | Out-Null
+} -errormessage "Azure login failed"
+
 
 # Retrieve the secret from the Key Vault
 # Retrieve secrets
@@ -268,20 +251,18 @@ Write-Output "DCR ImmutableID: $DCRImmutableId"
 Write-Output "DCR Log Ingestion Endpoint: $DCRLogIngestionEndpoint_uri"
 Write-Output "*****************************"
 
-
-
-# Graph login,  Currnlty working
+<#
+# Graph login,  working
 $SPPassword = ConvertTo-SecureString $kv_sp_client_secret_name_value -AsPlainText -Force
 $spCredentials = New-Object System.Management.Automation.PSCredential ($kv_sp_client_id_name_value, $SPPassword)
+#>
 
-<# 
 # Graph Login to try Securely retrieve secret from Key Vault
 $spClientSecretObj = Get-AzKeyVaultSecret -VaultName $keyvault_name -Name $kv_sp_client_secret_name
 $SPPassword = $spClientSecretObj.SecretValue
 
 # Build credential object
-#$spCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $kv_sp_client_id_name_value, $SPPassword
-#>
+$spCredentials = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $kv_sp_client_id_name_value, $SPPassword
 
 Invoke-Safe -scriptblock {
     Connect-MgGraph -TenantId $azure_tenantid -ClientSecretCredential $spCredentials -NoWelcome
@@ -291,20 +272,6 @@ Invoke-Safe -scriptblock {
 Remove-Variable -Name SPPassword, spClientSecretObj, spCredential -Force -ErrorAction SilentlyContinue
 
 # Initialize connection to a Data Collection Rule
-
-
-<# Moved to the Get-DCRBearerToken function
-
-    Add-Type -AssemblyName System.Web  #adds a required assembly to build a $scope variable
-    # Obtain a bearer token used later to authenticate against the DCR.
-    $scope = [System.Web.HttpUtility]::UrlEncode("https://monitor.azure.com//.default")   
-    $body = "client_id=$kv_sp_client_id_name_value&scope=$scope&client_secret=$kv_sp_client_secret_name_value&grant_type=client_credentials";
-    $headers = @{"Content-Type" = "application/x-www-form-urlencoded" };
-    $uri = "https://login.microsoftonline.com/$azure_tenantid/oauth2/v2.0/token"
-
-    $bearerToken = (Invoke-RestMethod -Uri $uri -Method "Post" -Body $body -Headers $headers).access_token
-#>
-
 $bearerToken = Get-DCRBearerToken `
         -tenantid     $azure_tenantid `
         -clientid     $kv_sp_client_id_name_value `
@@ -347,7 +314,6 @@ Foreach ($AzureApp in $AllAzureApps) {
             -currentdate       $CurrentDate `
             -expiresin         90
     }
-    
 }
 
 Write-Output "Completed"
